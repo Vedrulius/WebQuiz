@@ -1,5 +1,8 @@
 package com.mihey.quiz;
 
+import com.mihey.quiz.model_quiz.Info;
+import com.mihey.quiz.model_quiz.Quiz;
+import com.mihey.quiz.model_user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class QuizController {
@@ -18,6 +20,17 @@ public class QuizController {
 
     @Autowired
     private QuizRepository quizRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @PostMapping("/api/register")
+    public User addUser(@Valid @RequestBody User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        return userRepository.save(user);
+    }
 
     @PostMapping("/api/quizzes")
     public Quiz addQuiz(@Valid @RequestBody Quiz quiz) {

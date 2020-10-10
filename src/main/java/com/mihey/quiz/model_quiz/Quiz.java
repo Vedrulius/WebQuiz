@@ -1,4 +1,4 @@
-package com.mihey.quiz;
+package com.mihey.quiz.model_quiz;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-public class Quiz {
+public class Quiz  {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

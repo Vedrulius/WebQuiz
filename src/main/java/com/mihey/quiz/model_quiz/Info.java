@@ -1,4 +1,4 @@
-package com.mihey.quiz;
+package com.mihey.quiz.model_quiz;
 
 public class Info {
     private boolean success;
