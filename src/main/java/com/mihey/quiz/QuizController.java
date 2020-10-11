@@ -5,6 +5,7 @@ import com.mihey.quiz.model_quiz.Quiz;
 import com.mihey.quiz.model_user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,7 +40,7 @@ public class QuizController {
 
     @GetMapping(path = "/api/quizzes/{id}")
     public Quiz getQuiz(@PathVariable long id) {
-        if (id < 1 || quizRepository.count() < id) {
+        if (id < 1 || quizRepository.findById(id).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return quizRepository.findById(id).get();
@@ -52,7 +53,7 @@ public class QuizController {
 
     @PostMapping("/api/quizzes/{id}/solve")
     public Info answer(@PathVariable long id, @RequestBody Quiz answer) {
-        if (id < 1 || quizRepository.count() < id) {
+        if (id < 1 || quizRepository.findById(id).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (Arrays.equals(answer.getAnswer(), quizRepository.findById(id).get().getAnswer())) {
@@ -60,5 +61,15 @@ public class QuizController {
         }
 
         return new Info(false, "Wrong answer! Please, try again.");
+    }
+
+    @DeleteMapping("/api/quizzes/{id}")
+    public void deleteQuizById(@AuthenticationPrincipal User user, @PathVariable long id) {
+        if (id < 1 || quizRepository.findById(id).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } else {
+            quizRepository.deleteById(id);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+        }
     }
 }
