@@ -1,5 +1,6 @@
 package com.mihey.quiz.model_quiz;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Entity;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-public class Quiz  {
+public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -24,6 +25,8 @@ public class Quiz  {
     private String[] options;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int[] answer;
+    @JsonIgnore
+    private String email;
 
     public Quiz() {
     }
@@ -34,6 +37,14 @@ public class Quiz  {
         this.text = text;
         this.options = options;
         this.answer = answer;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public long getId() {
