@@ -25,7 +25,7 @@ public class Quiz {
     private String[] options;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int[] answer;
-    @JsonIgnore
+//    @JsonIgnore
     private String email;
 
     public Quiz() {

@@ -6,13 +6,14 @@ import com.mihey.quiz.model_user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class QuizController {
 
     public QuizController() {
     }
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private QuizRepository quizRepository;
@@ -33,15 +37,17 @@ public class QuizController {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     @PostMapping("/api/quizzes")
-    public Quiz addQuiz(@Valid @RequestBody Quiz quiz) {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        String username = authentication.getName();
-        quiz.setEmail(username);
+    public Quiz addQuiz(@Valid @RequestBody Quiz quiz, Principal user) {
+//        SecurityContext context = SecurityContextHolder.getContext();
+//        Authentication authentication = context.getAuthentication();
+//        String username = authentication.getName();
+//        quiz.setEmail(username);
+        quiz.setEmail(user.getName());
         return quizRepository.save(quiz);
     }
 
@@ -71,18 +77,17 @@ public class QuizController {
     }
 
     @DeleteMapping("/api/quizzes/{id}")
-    public void deleteQuizById(@PathVariable long id) {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        String username = authentication.getName();
+    public void deleteQuizById(@PathVariable long id, Principal user) {
+
+        String username = user.getName();
         if (id < 1 || quizRepository.findById(id).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (!quizRepository.findById(id).get().getEmail().equals(username)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-            quizRepository.deleteById(id);
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+        quizRepository.deleteById(id);
+        throw new ResponseStatusException(HttpStatus.NO_CONTENT);
 
     }
 }
