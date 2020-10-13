@@ -1,19 +1,22 @@
 package com.mihey.quiz;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mihey.quiz.model_completed_quizzes.CompletedQuizzes;
 import com.mihey.quiz.model_quiz.Info;
 import com.mihey.quiz.model_quiz.Quiz;
 import com.mihey.quiz.model_user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,6 +25,9 @@ public class QuizController {
 
     public QuizController() {
     }
+
+    @Autowired
+    private CompletedRepository completedRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -59,17 +65,37 @@ public class QuizController {
         return quizRepository.findById(id).get();
     }
 
+    ///////////////////////////////////
+//    @GetMapping(path = "/api/quizzesall")
+//    public List<Quiz> getAll(Principal principal) {
+//        return userRepository.findByEmail(principal.getName()).get().getQuizzes();
+//    }
+    ////////////////////////////////////
+
     @GetMapping(path = "/api/quizzes")
-    public List<Quiz> getAllQuizzes() {
-        return (List<Quiz>) quizRepository.findAll();
+//    public List<Quiz> getAllQuizzes() {
+//        return (List<Quiz>) quizRepository.findAll();
+//    }
+    public Page<Quiz> getAllQuizzes(@RequestParam(defaultValue = "1") Integer page) {
+
+        return quizRepository.findAll(PageRequest.of(page - 1, 10));
+    }
+
+    @GetMapping(path = "/api/quizzes/completed")
+    public List<CompletedQuizzes> getCompleted(Principal principal) {
+
+        return userRepository.findByEmail(principal.getName()).get().getQuizzes();
     }
 
     @PostMapping("/api/quizzes/{id}/solve")
-    public Info answer(@PathVariable long id, @RequestBody Quiz answer) {
+    public Info answer(@PathVariable long id, @RequestBody Quiz answer, Principal principal) {
         if (id < 1 || quizRepository.findById(id).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (Arrays.equals(answer.getAnswer(), quizRepository.findById(id).get().getAnswer())) {
+
+            completedRepository.save(new CompletedQuizzes((int) id
+                    , LocalDateTime.now(), principal.getName()));
             return new Info(true, "Congratulations, you're right!");
         }
 

@@ -3,10 +3,7 @@ package com.mihey.quiz.model_quiz;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -25,26 +22,20 @@ public class Quiz {
     private String[] options;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int[] answer;
-//    @JsonIgnore
-    private String email;
+    @JsonIgnore
+    private String userEmail;
 
     public Quiz() {
     }
 
-    public Quiz(int id, String title, String text, String[] options, int[] answer) {
-        this.id = id;
-        this.title = title;
-        this.text = text;
-        this.options = options;
-        this.answer = answer;
-    }
 
     public String getEmail() {
-        return email;
+        return userEmail;
     }
 
+    @JsonIgnore
     public void setEmail(String email) {
-        this.email = email;
+        this.userEmail = email;
     }
 
     public long getId() {
