@@ -1,6 +1,5 @@
 package com.mihey.quiz;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mihey.quiz.model_completed_quizzes.CompletedQuizzes;
 import com.mihey.quiz.model_quiz.Info;
 import com.mihey.quiz.model_quiz.Quiz;
@@ -15,10 +14,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class QuizController {
@@ -78,7 +77,8 @@ public class QuizController {
 //    }
     public Page<Quiz> getAllQuizzes(@RequestParam(defaultValue = "1") Integer page) {
 
-        return quizRepository.findAll(PageRequest.of(page - 1, 10));
+        return quizRepository.findAll(PageRequest.of(page-1, 10));
+
     }
 
     @GetMapping(path = "/api/quizzes/completed")
@@ -94,8 +94,9 @@ public class QuizController {
         }
         if (Arrays.equals(answer.getAnswer(), quizRepository.findById(id).get().getAnswer())) {
 
-            completedRepository.save(new CompletedQuizzes((int) id
-                    , LocalDateTime.now(), principal.getName()));
+            completedRepository.save(new CompletedQuizzes(id,
+                    LocalDateTime.now(),
+                    principal.getName()));
             return new Info(true, "Congratulations, you're right!");
         }
 

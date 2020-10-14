@@ -9,16 +9,16 @@ import java.time.LocalDateTime;
 @Entity
 public class CompletedQuizzes {
 
+    private long id;
     @Id
     private LocalDateTime completedAt;
-    private int id;
     @JsonIgnore
     private String userEmail;
 
     public CompletedQuizzes() {
     }
 
-    public CompletedQuizzes(int id, LocalDateTime completedAt, String userEmail) {
+    public CompletedQuizzes(long id, LocalDateTime completedAt, String userEmail) {
         this.completedAt = completedAt;
         this.id = id;
         this.userEmail = userEmail;
@@ -32,11 +32,11 @@ public class CompletedQuizzes {
         this.userEmail = userEmail;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
