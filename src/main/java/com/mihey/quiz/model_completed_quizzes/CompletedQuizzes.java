@@ -47,4 +47,5 @@ public class CompletedQuizzes {
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
     }
+
 }

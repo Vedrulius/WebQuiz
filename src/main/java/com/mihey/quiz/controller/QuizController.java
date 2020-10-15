@@ -1,5 +1,8 @@
-package com.mihey.quiz;
+package com.mihey.quiz.controller;
 
+import com.mihey.quiz.repository.CompletedRepository;
+import com.mihey.quiz.repository.QuizRepository;
+import com.mihey.quiz.repository.UserRepository;
 import com.mihey.quiz.model_completed_quizzes.CompletedQuizzes;
 import com.mihey.quiz.model_quiz.Info;
 import com.mihey.quiz.model_quiz.Quiz;
@@ -7,6 +10,7 @@ import com.mihey.quiz.model_user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +20,6 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class QuizController {
@@ -48,10 +50,7 @@ public class QuizController {
 
     @PostMapping("/api/quizzes")
     public Quiz addQuiz(@Valid @RequestBody Quiz quiz, Principal user) {
-//        SecurityContext context = SecurityContextHolder.getContext();
-//        Authentication authentication = context.getAuthentication();
-//        String username = authentication.getName();
-//        quiz.setEmail(username);
+
         quiz.setEmail(user.getName());
         return quizRepository.save(quiz);
     }
@@ -64,27 +63,18 @@ public class QuizController {
         return quizRepository.findById(id).get();
     }
 
-    ///////////////////////////////////
-//    @GetMapping(path = "/api/quizzesall")
-//    public List<Quiz> getAll(Principal principal) {
-//        return userRepository.findByEmail(principal.getName()).get().getQuizzes();
-//    }
-    ////////////////////////////////////
 
     @GetMapping(path = "/api/quizzes")
-//    public List<Quiz> getAllQuizzes() {
-//        return (List<Quiz>) quizRepository.findAll();
-//    }
-    public Page<Quiz> getAllQuizzes(@RequestParam(defaultValue = "1") Integer page) {
 
-        return quizRepository.findAll(PageRequest.of(page-1, 10));
-
+    public Page<Quiz> getAllQuizzes(@RequestParam(required = false, defaultValue = "0") int page) {
+        return quizRepository.findAll(PageRequest.of(page, 10));
     }
 
     @GetMapping(path = "/api/quizzes/completed")
-    public List<CompletedQuizzes> getCompleted(Principal principal) {
-
-        return userRepository.findByEmail(principal.getName()).get().getQuizzes();
+    public Page<CompletedQuizzes> getCompleted(@RequestParam(required = false, defaultValue = "0") int page,
+                                               Principal principal) {
+        return completedRepository.findByUserEmail(principal.getName(),
+                PageRequest.of(page, 10, Sort.by("completedAt").descending()));
     }
 
     @PostMapping("/api/quizzes/{id}/solve")
@@ -93,7 +83,6 @@ public class QuizController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (Arrays.equals(answer.getAnswer(), quizRepository.findById(id).get().getAnswer())) {
-
             completedRepository.save(new CompletedQuizzes(id,
                     LocalDateTime.now(),
                     principal.getName()));
@@ -115,6 +104,5 @@ public class QuizController {
         }
         quizRepository.deleteById(id);
         throw new ResponseStatusException(HttpStatus.NO_CONTENT);
-
     }
 }

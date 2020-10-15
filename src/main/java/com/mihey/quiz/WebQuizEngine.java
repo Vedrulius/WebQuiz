@@ -1,6 +1,6 @@
 package com.mihey.quiz;
 
-import com.mihey.quiz.model_user.User;
+import com.mihey.quiz.repository.UserRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
